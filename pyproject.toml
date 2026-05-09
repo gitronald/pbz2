@@ -5,7 +5,7 @@ description = ""
 authors = [
     {name = "gitronald", email = "gitronald@users.noreply.github.com"}
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "orjson>=3.11.9",
     "typer",
