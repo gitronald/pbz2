@@ -16,7 +16,6 @@ from typing import IO, Any, cast
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_BLOCK_SIZE = 9  # pbzip2 -b in 100k steps (9 = 900k, pbzip2 default)
 DEFAULT_BUFSIZE_MB = 32  # OS pipe buffer between pbzip2 and Python
 DEFAULT_STREAM_BUFFER_MB = 4  # Python-side read chunk size
 
@@ -29,7 +28,6 @@ def open_decompress(
     path: str | os.PathLike,
     *,
     num_processors: int | None = None,
-    block_size: int = DEFAULT_BLOCK_SIZE,
     bufsize_mb: int = DEFAULT_BUFSIZE_MB,
 ) -> tuple[IO[bytes], subprocess.Popen | None]:
     """Open a binary stream that yields decompressed bytes from `path`.
@@ -43,7 +41,6 @@ def open_decompress(
             "pbzip2",
             "-dc",
             f"-p{int(nproc)}",
-            f"-b{int(block_size)}",
             os.fspath(path),
         ]
         logger.info("decompress cmd: %s", " ".join(cmd))
@@ -64,7 +61,6 @@ def iter_chunks(
     path: str | os.PathLike,
     *,
     num_processors: int | None = None,
-    block_size: int = DEFAULT_BLOCK_SIZE,
     bufsize_mb: int = DEFAULT_BUFSIZE_MB,
     stream_buffer_mb: int = DEFAULT_STREAM_BUFFER_MB,
 ) -> Iterator[str]:
@@ -76,7 +72,6 @@ def iter_chunks(
     stream, proc = open_decompress(
         path,
         num_processors=num_processors,
-        block_size=block_size,
         bufsize_mb=bufsize_mb,
     )
     read_size = stream_buffer_mb * 1024 * 1024

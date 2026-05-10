@@ -77,6 +77,5 @@ pbz2 head data.json.bz2 -n 5
 ### Common options
 
 - `num_processors` — pbzip2 worker count (default: cpu_count - 1)
-- `block_size` — pbzip2 block size in 100k steps (default: 9 → 900k)
 - `bufsize_mb` — OS pipe buffer between pbzip2 and Python (default: 32 MB)
 - `stream_buffer_mb` — Python-side read chunk size (default: 4 MB)

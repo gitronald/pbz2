@@ -14,7 +14,6 @@ from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
 from typing import Any
 
 from .reader import (
-    DEFAULT_BLOCK_SIZE,
     DEFAULT_BUFSIZE_MB,
     DEFAULT_STREAM_BUFFER_MB,
     iter_chunks,
@@ -31,7 +30,6 @@ def process_parallel(
     worker_args: Sequence[Any] = (),
     num_processes: int | None = None,
     max_pending: int | None = None,
-    block_size: int = DEFAULT_BLOCK_SIZE,
     bufsize_mb: int = DEFAULT_BUFSIZE_MB,
     stream_buffer_mb: int = DEFAULT_STREAM_BUFFER_MB,
 ) -> None:
@@ -65,7 +63,6 @@ def process_parallel(
         for chunk in iter_chunks(
             path,
             num_processors=nproc,
-            block_size=block_size,
             bufsize_mb=bufsize_mb,
             stream_buffer_mb=stream_buffer_mb,
         ):
