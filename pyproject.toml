@@ -1,12 +1,13 @@
 [project]
 name = "pbz2"
-version = "0.1.0a0"
-description = ""
+version = "0.1.0"
+description = "Stream and parallel-process .bz2 files via pbzip2."
 authors = [
     {name = "gitronald", email = "gitronald@users.noreply.github.com"}
 ]
 requires-python = ">=3.11"
 dependencies = [
+    "orjson>=3.11.9",
     "typer",
 ]
 readme = "README.md"
