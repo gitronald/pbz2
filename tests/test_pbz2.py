@@ -60,6 +60,19 @@ def test_process_parallel(jsonl_bz2: Path) -> None:
     assert sum(counts) == 1000
 
 
+def test_process_parallel_decoupled_decompress(jsonl_bz2: Path) -> None:
+    """A pbzip2 thread count below the worker count yields identical results."""
+    counts: list[int] = []
+    pbz2.process_parallel(
+        jsonl_bz2,
+        worker_fn=_count_lines,
+        on_result=counts.append,
+        num_processes=4,
+        decompress_procs=1,
+    )
+    assert sum(counts) == 1000
+
+
 def _sum_field(chunk: str, field: str) -> int:
     return sum(json.loads(line)[field] for line in chunk.splitlines() if line)
 
