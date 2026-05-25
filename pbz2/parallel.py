@@ -29,6 +29,7 @@ def process_parallel(
     on_result: Callable[[Any], None] | None = None,
     worker_args: Sequence[Any] = (),
     num_processes: int | None = None,
+    decompress_procs: int | None = None,
     max_pending: int | None = None,
     bufsize_mb: int = DEFAULT_BUFSIZE_MB,
     stream_buffer_mb: int = DEFAULT_STREAM_BUFFER_MB,
@@ -39,10 +40,16 @@ def process_parallel(
     `str` of complete newline-terminated records. Results are dispatched to
     `on_result` in the main process as they complete.
 
+    `decompress_procs` sets the pbzip2 `-p` thread count independently of the
+    worker pool; it defaults to `num_processes` (decompressor and workers coupled,
+    as before). Sizing it below the worker count frees CPU for the workers when
+    parsing -- not decompression -- is the bottleneck.
+
     When `max_pending` is set, the producer pauses while that many futures are
     in-flight to bound memory.
     """
     nproc = num_processes or max(1, (os.cpu_count() or 2) // 2)
+    dproc = decompress_procs or nproc
     cap = max_pending if max_pending is not None else nproc * 2
 
     def drain_done(pending: list, *, block: bool = False) -> list:
@@ -62,7 +69,7 @@ def process_parallel(
         pending: list = []
         for chunk in iter_chunks(
             path,
-            num_processors=nproc,
+            num_processors=dproc,
             bufsize_mb=bufsize_mb,
             stream_buffer_mb=stream_buffer_mb,
         ):
