@@ -40,7 +40,7 @@ def open_decompress(
         cmd = [
             "pbzip2",
             "-dc",
-            f"-p{int(nproc)}",
+            f"-p{nproc}",
             os.fspath(path),
         ]
         logger.info("decompress cmd: %s", " ".join(cmd))
