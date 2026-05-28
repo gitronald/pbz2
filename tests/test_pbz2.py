@@ -28,6 +28,35 @@ def test_iter_lines(jsonl_bz2: Path) -> None:
     assert json.loads(lines[-1])["i"] == 999
 
 
+def test_iter_lines_preserves_unicode_line_separators(tmp_path: Path) -> None:
+    """Raw U+2028/U+2029/U+0085 inside a record must not split it.
+
+    These code points are line boundaries to ``str.splitlines()`` but not to a
+    plain ``split("\\n")``. They occur raw in real-world data (notably embedded
+    JavaScript), so ``iter_lines`` must keep each record whole.
+    """
+    records = [
+        {"i": 0, "html": "before\u2028after"},  # LINE SEPARATOR
+        {"i": 1, "html": "x\u2029y"},  # PARAGRAPH SEPARATOR
+        {"i": 2, "html": "a\u0085b"},  # NEL
+        {"i": 3, "html": "plain"},
+    ]
+    path = tmp_path / "u2028.json.bz2"
+    # ensure_ascii=False writes the separators raw (escaped \u2028 would not repro)
+    with bz2.open(path, "wt", encoding="utf-8") as f:
+        for r in records:
+            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+
+    lines = list(pbz2.iter_lines(path))
+    assert len(lines) == len(records)  # one line per record, not shattered
+
+    objs = list(pbz2.iter_jsonl(path))
+    assert len(objs) == len(records)
+    assert objs[0]["html"] == "before\u2028after"
+    assert objs[1]["html"] == "x\u2029y"
+    assert objs[2]["html"] == "a\u0085b"
+
+
 def test_iter_jsonl(jsonl_bz2: Path) -> None:
     objs = list(pbz2.iter_jsonl(jsonl_bz2))
     assert len(objs) == 1000
