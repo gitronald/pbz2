@@ -66,8 +66,11 @@ def iter_chunks(
 ) -> Iterator[str]:
     """Yield UTF-8 text chunks of complete newline-terminated records.
 
-    Each yielded chunk ends on a newline boundary, so callers can `splitlines()`
-    safely. Handles UTF-8 multibyte characters split across read boundaries.
+    Each yielded chunk ends on a "\\n" boundary, so callers can split on "\\n"
+    safely. Do NOT use ``str.splitlines()``: it also breaks on U+2028/U+2029/U+0085
+    and other Unicode line separators that can occur raw inside record content,
+    which would shatter those records. Handles UTF-8 multibyte characters split
+    across read boundaries.
     """
     stream, proc = open_decompress(
         path,
@@ -105,8 +108,12 @@ def iter_lines(
     **kwargs: Any,
 ) -> Iterator[str]:
     """Yield UTF-8 lines (without trailing newline) from a `.bz2` file."""
+    # Split on "\n" only -- str.splitlines() also breaks on U+2028/U+2029/U+0085
+    # and other Unicode line boundaries, which can appear raw inside record content
+    # (notably inside embedded HTML/JavaScript) and would shatter those records.
     for chunk in iter_chunks(path, **kwargs):
-        for line in chunk.splitlines():
+        for line in chunk.split("\n"):
+            line = line.rstrip("\r")
             if line:
                 yield line
 
