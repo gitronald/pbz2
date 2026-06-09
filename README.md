@@ -72,7 +72,7 @@ pbz2 head data.json.bz2 -n 5
 | --- | --- |
 | `iter_chunks(path, **opts)` | Yield UTF-8 text chunks ending on a newline boundary. |
 | `iter_lines(path, **opts)` | Yield non-empty UTF-8 lines (no trailing newline). |
-| `iter_jsonl(path, *, loads=None, **opts)` | Yield parsed JSON objects (uses `orjson` if installed). |
+| `iter_jsonl(path, *, loads=None, **opts)` | Yield parsed JSON objects (uses `orjson`; pass `loads=` to override). |
 | `process_parallel(path, worker_fn, *, on_result=None, worker_args=(), num_processes=None, max_pending=None, ...)` | Run `worker_fn(chunk, *worker_args)` in a process pool, dispatching results to `on_result`. |
 | `open_decompress(path, **opts)` | Low-level: open a binary stream of decompressed bytes. |
 

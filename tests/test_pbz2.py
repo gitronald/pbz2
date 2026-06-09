@@ -9,6 +9,7 @@ from pathlib import Path
 import pytest
 
 import pbz2
+from pbz2.reader import _has_pbzip2
 
 
 @pytest.fixture
@@ -55,6 +56,20 @@ def test_iter_lines_preserves_unicode_line_separators(tmp_path: Path) -> None:
     assert objs[0]["html"] == "before\u2028after"
     assert objs[1]["html"] == "x\u2029y"
     assert objs[2]["html"] == "a\u0085b"
+
+
+def test_corrupt_input_raises(tmp_path: Path) -> None:
+    """A truncated/garbage `.bz2` must error rather than silently yield partial data.
+
+    The pbzip2 path surfaces a non-zero exit as ``RuntimeError``; the stdlib
+    fallback raises ``OSError`` on the invalid stream. Either way it must not
+    return a short, silent result.
+    """
+    path = tmp_path / "bad.bz2"
+    path.write_bytes(b"BZh9" + b"\x00not a valid bzip2 stream\xff" * 50)
+    expected: type[Exception] = RuntimeError if _has_pbzip2() else OSError
+    with pytest.raises(expected):
+        list(pbz2.iter_lines(path))
 
 
 def test_iter_jsonl(jsonl_bz2: Path) -> None:
