@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-06-10
+
+### Changed
+
+- typer 0.25.1 -> 0.26.7 (typer no longer depends on `click`) and
+  ruff 0.15.14 -> 0.15.16 (#16).
+- CI: workflow actions reference specific version tags (e.g.
+  `actions/checkout@v6.0.3`) instead of commit SHAs.
+
 ## [0.2.0] - 2026-06-10
 
 ### Changed
