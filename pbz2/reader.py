@@ -14,6 +14,8 @@ import subprocess
 from collections.abc import Callable, Iterator
 from typing import IO, Any, cast
 
+import orjson
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_BUFSIZE_MB = 32  # OS pipe buffer between pbzip2 and Python
@@ -33,7 +35,9 @@ def open_decompress(
     """Open a binary stream that yields decompressed bytes from `path`.
 
     Returns `(stream, process)`. `process` is the pbzip2 subprocess when
-    pbzip2 is available, else `None` (stdlib `bz2.open` fallback).
+    pbzip2 is available, else `None` (stdlib `bz2.open` fallback). The caller
+    owns `process.stderr` (a pipe): drain and close it after `stream` is
+    consumed, and check `process.returncode`, as `iter_chunks` does.
     """
     if _has_pbzip2():
         nproc = num_processors or max(1, (os.cpu_count() or 2) - 1)
@@ -47,7 +51,10 @@ def open_decompress(
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
+            # Capture stderr so a decompression failure can be surfaced. pbzip2
+            # emits only a few lines here (even on error), so it cannot fill the
+            # pipe buffer and deadlock against the stdout read in iter_chunks.
+            stderr=subprocess.PIPE,
             bufsize=bufsize_mb * 1024 * 1024,
         )
         assert proc.stdout is not None
@@ -80,11 +87,17 @@ def iter_chunks(
     read_size = stream_buffer_mb * 1024 * 1024
     decoder = codecs.getincrementaldecoder("utf-8")()
     buffer = ""
+    exhausted = False
 
     try:
         while True:
             data = stream.read(read_size)
             if not data:
+                # EOF means the stream was fully drained -- mark it before the
+                # final flush so a UnicodeDecodeError there (truncated multibyte
+                # char) still triggers the exit-status check in finally, keeping
+                # pbzip2's stderr in the raised error instead of losing it.
+                exhausted = True
                 # Flush any final bytes through the incremental decoder
                 buffer += decoder.decode(b"", final=True)
                 if buffer:
@@ -100,7 +113,19 @@ def iter_chunks(
     finally:
         stream.close()
         if proc is not None:
+            stderr = proc.stderr.read() if proc.stderr is not None else b""
+            if proc.stderr is not None:
+                proc.stderr.close()
             proc.wait()
+            # Only validate the exit status when we drained the whole stream. An
+            # early break (e.g. CLI `head`) closes the pipe and makes pbzip2 die
+            # with SIGPIPE, which is expected -- not a decompression failure.
+            if exhausted and proc.returncode:
+                msg = stderr.decode("utf-8", "replace").strip()
+                raise RuntimeError(
+                    f"pbzip2 failed (exit {proc.returncode}) decompressing "
+                    f"{os.fspath(path)}" + (f": {msg}" if msg else "")
+                )
 
 
 def iter_lines(
@@ -126,18 +151,10 @@ def iter_jsonl(
 ) -> Iterator[Any]:
     """Yield parsed JSON objects from a `.json.bz2` file (one object per line).
 
-    Uses `orjson.loads` when available, else stdlib `json.loads`. Pass `loads=`
-    to override.
+    Uses `orjson.loads` by default. Pass `loads=` to override.
     """
     if loads is None:
-        try:
-            import orjson
-
-            loads = orjson.loads
-        except ImportError:
-            import json
-
-            loads = json.loads
+        loads = orjson.loads
 
     for line in iter_lines(path, **kwargs):
         yield loads(line)
