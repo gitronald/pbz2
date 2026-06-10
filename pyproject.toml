@@ -1,6 +1,6 @@
 [project]
 name = "pbz2"
-version = "0.1.4a0"
+version = "0.2.0"
 description = "Stream and parallel-process .bz2 files via pbzip2."
 authors = [
     {name = "gitronald", email = "gitronald@users.noreply.github.com"}
