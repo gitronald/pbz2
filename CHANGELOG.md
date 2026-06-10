@@ -7,17 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
-### Added
+## [0.2.0] - 2026-06-10
 
 ### Changed
 
-### Deprecated
-
-### Removed
+- `iter_jsonl` always uses `orjson` (now imported at module level); the dead
+  stdlib-`json` ImportError fallback is removed. `orjson` was already a required
+  dependency, so behavior is unchanged — pass `loads=` to override.
+- `open_decompress` now opens pbzip2's stderr as a pipe owned by the caller
+  (drain, close, and check `returncode` after consuming the stream), so
+  decompression errors can be surfaced instead of discarded.
+- CI: pbzip2 is installed in every test-matrix leg so the primary decompression
+  path is exercised (the stdlib fallback is covered via a forced-fallback test);
+  actions are pinned to commit SHAs; dependabot updates are grouped; publishing
+  is gated behind the `PUBLISH_ENABLED` repository variable.
 
 ### Fixed
 
-### Security
+- `iter_chunks` (and everything built on it: `iter_lines`, `iter_jsonl`,
+  `process_parallel`, the CLI) now raises `RuntimeError` with pbzip2's stderr
+  when decompression exits non-zero, instead of silently yielding partial data
+  from a corrupt or truncated `.bz2`. Stopping early (e.g. `pbz2 head`) is still
+  treated as normal termination, not a failure.
 
 ## [0.1.3] - 2026-05-28
 

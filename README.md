@@ -1,21 +1,63 @@
-# pbz2
+# pbz2 v0.2.0
 
-Stream and parallel-process `.bz2` files via [pbzip2](http://compression.great-site.net/pbzip2/) (parallel bzip2). Falls back to the stdlib `bz2` module when the `pbzip2` binary is unavailable.
+Stream and parallel-process `.bz2` files via [pbzip2](http://compression.great-site.net/pbzip2/) (parallel bzip2).
 
-## Install
+Reads compressed files through a `pbzip2 -dc` subprocess for multi-core decompression — no temp files, no full decompression to disk — and falls back to the stdlib `bz2` module when the `pbzip2` binary is unavailable. Iterate raw lines, newline-aligned text chunks, or parsed JSONL records, or fan chunks out across a process pool for parallel parsing. Includes a CLI for quick inspection and a Python API for custom pipelines. Corrupt or truncated input raises instead of silently yielding partial data.
+
+## Project Structure
+
+```
+pbz2/
+├── pbz2/                 # Python library
+│   ├── reader.py         # Streaming readers (open_decompress, iter_*)
+│   ├── parallel.py       # Process-pool chunk processing
+│   └── cli.py            # Typer CLI commands
+├── tests/                # Test suite
+└── pyproject.toml        # Project configuration
+```
+
+## Installation
 
 ```bash
 uv add pbz2
 ```
 
-Install `pbzip2` for parallel decompression:
+From source:
+
+```bash
+git clone https://github.com/gitronald/pbz2.git
+cd pbz2
+uv sync
+```
+
+From a specific branch:
+
+```bash
+uv add git+https://github.com/gitronald/pbz2.git@dev
+```
+
+Install the `pbzip2` binary for parallel decompression (optional — without it, reads fall back to single-threaded stdlib `bz2`):
 
 ```bash
 sudo apt install pbzip2     # Debian/Ubuntu
 brew install pbzip2         # macOS
 ```
 
-## Usage
+> **Note:** the parallel speedup only applies to files that were *compressed* with pbzip2. pbzip2 writes its output as multiple independent bzip2 streams that can be decompressed concurrently; a file compressed with standard `bzip2` (or Python's `bz2`) is a single stream, which pbzip2 can only decompress on one core. Compress with `pbzip2 data.json` to get parallel decompression later.
+
+## CLI Commands
+
+Quick inspection of `.bz2` files from the shell:
+
+```bash
+# Count lines
+pbz2 count data.json.bz2
+
+# Print the first N lines
+pbz2 head data.json.bz2 -n 5
+```
+
+## Python API
 
 ### Iterate
 
@@ -59,20 +101,13 @@ pbz2.process_parallel(
 )
 ```
 
-### CLI
-
-```bash
-pbz2 count data.json.bz2
-pbz2 head data.json.bz2 -n 5
-```
-
-## API
+### Reference
 
 | Function | Description |
 | --- | --- |
 | `iter_chunks(path, **opts)` | Yield UTF-8 text chunks ending on a newline boundary. |
 | `iter_lines(path, **opts)` | Yield non-empty UTF-8 lines (no trailing newline). |
-| `iter_jsonl(path, *, loads=None, **opts)` | Yield parsed JSON objects (uses `orjson` if installed). |
+| `iter_jsonl(path, *, loads=None, **opts)` | Yield parsed JSON objects (uses `orjson`; pass `loads=` to override). |
 | `process_parallel(path, worker_fn, *, on_result=None, worker_args=(), num_processes=None, max_pending=None, ...)` | Run `worker_fn(chunk, *worker_args)` in a process pool, dispatching results to `on_result`. |
 | `open_decompress(path, **opts)` | Low-level: open a binary stream of decompressed bytes. |
 
