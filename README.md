@@ -43,6 +43,8 @@ sudo apt install pbzip2     # Debian/Ubuntu
 brew install pbzip2         # macOS
 ```
 
+> **Note:** the parallel speedup only applies to files that were *compressed* with pbzip2. pbzip2 writes its output as multiple independent bzip2 streams that can be decompressed concurrently; a file compressed with standard `bzip2` (or Python's `bz2`) is a single stream, which pbzip2 can only decompress on one core. Compress with `pbzip2 data.json` to get parallel decompression later.
+
 ## CLI Commands
 
 Quick inspection of `.bz2` files from the shell:
