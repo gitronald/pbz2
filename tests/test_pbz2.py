@@ -58,18 +58,49 @@ def test_iter_lines_preserves_unicode_line_separators(tmp_path: Path) -> None:
     assert objs[2]["html"] == "a\u0085b"
 
 
-def test_corrupt_input_raises(tmp_path: Path) -> None:
-    """A truncated/garbage `.bz2` must error rather than silently yield partial data.
+@pytest.mark.parametrize("backend", ["pbzip2", "stdlib"])
+def test_corrupt_input_raises(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, backend: str
+) -> None:
+    """A garbage `.bz2` must error rather than silently yield partial data.
 
     The pbzip2 path surfaces a non-zero exit as ``RuntimeError``; the stdlib
-    fallback raises ``OSError`` on the invalid stream. Either way it must not
-    return a short, silent result.
+    fallback raises ``OSError`` on this garbage stream (a truncated but
+    otherwise valid stream raises ``EOFError`` instead). Either way it must
+    not return a short, silent result. The stdlib leg forces the fallback so
+    both paths are covered even when pbzip2 is installed.
     """
+    if backend == "pbzip2":
+        if not _has_pbzip2():
+            pytest.skip("pbzip2 not installed")
+        expected: type[Exception] = RuntimeError
+    else:
+        monkeypatch.setattr("pbz2.reader._has_pbzip2", lambda: False)
+        expected = OSError
     path = tmp_path / "bad.bz2"
     path.write_bytes(b"BZh9" + b"\x00not a valid bzip2 stream\xff" * 50)
-    expected: type[Exception] = RuntimeError if _has_pbzip2() else OSError
     with pytest.raises(expected):
         list(pbz2.iter_lines(path))
+
+
+def test_truncated_input_raises_runtime_error(tmp_path: Path) -> None:
+    """A truncated `.bz2` must raise ``RuntimeError`` on the pbzip2 path.
+
+    Truncated multibyte-dense output usually ends mid-character, so the final
+    decoder flush raises ``UnicodeDecodeError`` -- the exit-status check must
+    still fire and surface pbzip2's stderr instead of losing it.
+    """
+    if not _has_pbzip2():
+        pytest.skip("pbzip2 not installed")
+    src = tmp_path / "good.json.bz2"
+    with bz2.open(src, "wt", encoding="utf-8") as f:
+        for i in range(20_000):
+            record = {"i": i, "msg": "日本語テキスト" * 5}
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    bad = tmp_path / "trunc.json.bz2"
+    bad.write_bytes(src.read_bytes()[: src.stat().st_size // 2])
+    with pytest.raises(RuntimeError, match="pbzip2 failed"):
+        list(pbz2.iter_lines(bad))
 
 
 def test_iter_jsonl(jsonl_bz2: Path) -> None:

@@ -35,7 +35,9 @@ def open_decompress(
     """Open a binary stream that yields decompressed bytes from `path`.
 
     Returns `(stream, process)`. `process` is the pbzip2 subprocess when
-    pbzip2 is available, else `None` (stdlib `bz2.open` fallback).
+    pbzip2 is available, else `None` (stdlib `bz2.open` fallback). The caller
+    owns `process.stderr` (a pipe): drain and close it after `stream` is
+    consumed, and check `process.returncode`, as `iter_chunks` does.
     """
     if _has_pbzip2():
         nproc = num_processors or max(1, (os.cpu_count() or 2) - 1)
@@ -91,11 +93,15 @@ def iter_chunks(
         while True:
             data = stream.read(read_size)
             if not data:
+                # EOF means the stream was fully drained -- mark it before the
+                # final flush so a UnicodeDecodeError there (truncated multibyte
+                # char) still triggers the exit-status check in finally, keeping
+                # pbzip2's stderr in the raised error instead of losing it.
+                exhausted = True
                 # Flush any final bytes through the incremental decoder
                 buffer += decoder.decode(b"", final=True)
                 if buffer:
                     yield buffer
-                exhausted = True
                 return
 
             buffer += decoder.decode(data)
