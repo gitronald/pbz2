@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-06-10
+
 ### Changed
 
 - `iter_jsonl` always uses `orjson` (now imported at module level); the dead
