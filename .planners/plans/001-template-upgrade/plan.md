@@ -54,3 +54,11 @@ no `[tool.proj-template]` stamp, so it is treated as never stamped.
   - Base: `dev` at `e907604`
   - Worktree: `.worktrees/template-upgrade`
   - PR: pending
+- **2026-10-16T20:28:29-07:00** — Applied the v0.11.2 sync matrix; all checks green (ruff, pyrefly strict 0 errors, pre-commit, pytest 11 passed at 83% coverage).
+  - Tooling: pyproject ruff/pyrefly/pytest/coverage sections and dev pins merged; sdist only-include added; pre-commit synced; ruff-pre-commit rev moved to v0.16.10 to match the locked ruff; .gitattributes added.
+  - Strict pyrefly: 9 implicit-any-type-argument errors fixed at the source (os.PathLike[str], subprocess.Popen[bytes], list[Future[Any]]); no excludes needed.
+  - Coverage: fail_under kept at the template's 50 (current total 83%).
+  - CI: test.yml and publish.yml synced to SHA pins; kept the repo's pbzip2 apt install step, which the tests need.
+  - Dependabot: added header and target-branch dev (origin/dev exists); kept the repo's semver-major-days 14 on github-actions, which the template drops. Merged rather than asked, since both keep repo content and add the template's.
+  - .claude/ is gitignored: CLAUDE.md, settings.json, and the Stop hook were written in the main checkout, on disk only. settings.local.json was not copied: the shared permission baseline lives in the user-level settings, so a per-repo copy would only duplicate it.
+  - Stamped [tool.proj-template] version 0.11.2 last.
