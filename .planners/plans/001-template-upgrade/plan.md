@@ -5,7 +5,7 @@ status: active
 branch: feature/template-upgrade
 created: 2026-10-16T20:26:39-07:00
 concluded:
-pr:
+pr: https://github.com/gitronald/pbz2/pull/26
 ---
 
 # Upgrade to proj-template v0.11.2
@@ -62,3 +62,4 @@ no `[tool.proj-template]` stamp, so it is treated as never stamped.
   - Dependabot: added header and target-branch dev (origin/dev exists); kept the repo's semver-major-days 14 on github-actions, which the template drops. Merged rather than asked, since both keep repo content and add the template's.
   - .claude/ is gitignored: CLAUDE.md, settings.json, and the Stop hook were written in the main checkout, on disk only. settings.local.json was not copied: the shared permission baseline lives in the user-level settings, so a per-repo copy would only duplicate it.
   - Stamped [tool.proj-template] version 0.11.2 last.
+- **2026-10-16T20:28:59-07:00** — PR opened: https://github.com/gitronald/pbz2/pull/26
