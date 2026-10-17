@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-10-16
+
+### Changed
+
+- Type hints are fully parameterized for pyrefly's strict preset: path arguments
+  are `str | os.PathLike[str]` and `open_decompress` returns
+  `subprocess.Popen[bytes] | None`. Runtime behavior is unchanged.
+- The sdist now ships only the package, `README.md`, `CHANGELOG.md`, and
+  `LICENSE`; plan files, tests, and tooling config are no longer included.
+- Tooling: ruff 0.15 -> 0.16 (pinned to the same minor as the pre-commit hook),
+  pyrefly strict preset, and coverage configured in `pyproject.toml` with a 50%
+  floor.
+- CI: each test-matrix leg now runs on its own Python version (previously every
+  leg fell back to the `.python-version` pin); workflow actions are pinned to
+  commit SHAs; dependabot targets `dev` with cooldown windows.
+
 ## [0.2.1] - 2026-06-10
 
 ### Changed
