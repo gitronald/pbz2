@@ -2,7 +2,7 @@
 
 Stream and parallel-process `.bz2` files via [pbzip2](http://compression.great-site.net/pbzip2/) (parallel bzip2).
 
-Reads compressed files through a `pbzip2 -dc` subprocess for multi-core decompression — no temp files, no full decompression to disk — and falls back to the stdlib `bz2` module when the `pbzip2` binary is unavailable. Iterate raw lines, newline-aligned text chunks, or parsed JSONL records, or fan chunks out across a process pool for parallel parsing. Includes a CLI for quick inspection and a Python API for custom pipelines. Corrupt or truncated input raises instead of silently yielding partial data.
+Reads compressed files through a `pbzip2 -dc` subprocess for multi-core decompression — no temp files, no full decompression to disk — and falls back to the stdlib `bz2` module when the `pbzip2` binary is unavailable. Iterate raw lines, newline-aligned text chunks, or parsed JSONL records, or fan chunks out across a process pool for parallel parsing. Includes a CLI for quick inspection and a Python API for custom pipelines. Corrupt or truncated input raises instead of silently yielding partial data. See the [changelog](https://github.com/gitronald/pbz2/blob/main/CHANGELOG.md) for release history.
 
 ## Project Structure
 

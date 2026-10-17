@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- The README intro links to this changelog.
+
+### Fixed
+
+- Dependabot: dropped `semver-major-days` from the github-actions cooldown, which
+  that ecosystem does not support; actions updates use the 5-day default.
+
 ## [0.2.2] - 2026-10-16
 
 ### Changed
