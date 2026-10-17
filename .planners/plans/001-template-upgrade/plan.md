@@ -1,10 +1,10 @@
 ---
 id: 1
 slug: template-upgrade
-status: active
+status: done
 branch: feature/template-upgrade
 created: 2026-10-16T20:26:39-07:00
-concluded:
+concluded: 2026-10-16T20:28:18-07:00
 pr: https://github.com/gitronald/pbz2/pull/26
 ---
 
@@ -66,3 +66,10 @@ no `[tool.proj-template]` stamp, so it is treated as never stamped.
 - **2026-10-16T20:36:27-07:00** — Review gate (medium, /code-review on sonnet finders): no findings; local gate and CI 3.11-3.14 green.
   - Review follow-up: five low-confidence candidates raised, none actioned. Conscious no-ops: three template-intended config choices (separate local pre-commit blocks, explicit uv python install, pyrefly project-excludes); the coverage floor applying to partial pytest runs, accepted by the template; the dependabot semver-major-days key, which predates this PR.
   - sdist checked with uv build: only pbz2/, README, CHANGELOG, LICENSE, plus hatchling's forced files.
+
+## Retrospective
+
+- The sync matrix held as planned. The one deviation was the ruff-pre-commit rev: it moved to v0.16.10 to match the locked ruff rather than the template's listed rev, so the commit hook and `uv run ruff` apply one rule set.
+- Strict pyrefly cost nine annotation fixes, all implicit `Any` type arguments, and no excludes. A small typed package absorbs the strict preset cheaply.
+- Merging repo-specific content (the pbzip2 apt step, dependabot's 14-day major cooldown) into the template files, rather than overwriting them, was the main judgment call. Recording each keep in the sync table up front made the review quick.
+- `.claude/` is gitignored here, so the template's Claude files exist only on disk in the main checkout. A fresh clone will not have them until it is re-synced.
