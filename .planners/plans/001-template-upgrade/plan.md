@@ -1,8 +1,8 @@
 ---
 id: 1
 slug: template-upgrade
-status: draft
-branch:
+status: active
+branch: feature/template-upgrade
 created: 2026-10-16T20:26:39-07:00
 concluded:
 pr:
@@ -46,3 +46,11 @@ no `[tool.proj-template]` stamp, so it is treated as never stamped.
 3. Code fixes for the strict pyrefly preset and ruff 0.16
 4. Verify: ruff, pyrefly, pre-commit, pytest all green
 5. Stamp, PR into `dev`
+
+## Log
+
+- **2026-10-16T20:26:51-07:00** — Activated.
+  - Branch: `feature/template-upgrade`
+  - Base: `dev` at `e907604`
+  - Worktree: `.worktrees/template-upgrade`
+  - PR: pending
