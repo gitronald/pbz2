@@ -27,11 +27,11 @@ def _has_pbzip2() -> bool:
 
 
 def open_decompress(
-    path: str | os.PathLike,
+    path: str | os.PathLike[str],
     *,
     num_processors: int | None = None,
     bufsize_mb: int = DEFAULT_BUFSIZE_MB,
-) -> tuple[IO[bytes], subprocess.Popen | None]:
+) -> tuple[IO[bytes], subprocess.Popen[bytes] | None]:
     """Open a binary stream that yields decompressed bytes from `path`.
 
     Returns `(stream, process)`. `process` is the pbzip2 subprocess when
@@ -65,7 +65,7 @@ def open_decompress(
 
 
 def iter_chunks(
-    path: str | os.PathLike,
+    path: str | os.PathLike[str],
     *,
     num_processors: int | None = None,
     bufsize_mb: int = DEFAULT_BUFSIZE_MB,
@@ -129,7 +129,7 @@ def iter_chunks(
 
 
 def iter_lines(
-    path: str | os.PathLike,
+    path: str | os.PathLike[str],
     **kwargs: Any,
 ) -> Iterator[str]:
     """Yield UTF-8 lines (without trailing newline) from a `.bz2` file."""
@@ -144,7 +144,7 @@ def iter_lines(
 
 
 def iter_jsonl(
-    path: str | os.PathLike,
+    path: str | os.PathLike[str],
     *,
     loads: Callable[[str | bytes], Any] | None = None,
     **kwargs: Any,
