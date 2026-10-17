@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 import os
 from collections.abc import Callable, Sequence
-from concurrent.futures import FIRST_COMPLETED, ProcessPoolExecutor, wait
+from concurrent.futures import FIRST_COMPLETED, Future, ProcessPoolExecutor, wait
 from typing import Any
 
 from .reader import (
@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 def process_parallel(
-    path: str | os.PathLike,
+    path: str | os.PathLike[str],
     worker_fn: Callable[..., Any],
     *,
     on_result: Callable[[Any], None] | None = None,
@@ -52,10 +52,12 @@ def process_parallel(
     dproc = decompress_procs or nproc
     cap = max_pending if max_pending is not None else nproc * 2
 
-    def drain_done(pending: list, *, block: bool = False) -> list:
+    def drain_done(
+        pending: list[Future[Any]], *, block: bool = False
+    ) -> list[Future[Any]]:
         if block and pending:
             wait(pending, return_when=FIRST_COMPLETED)
-        still_pending = []
+        still_pending: list[Future[Any]] = []
         for fut in pending:
             if fut.done():
                 result = fut.result()
@@ -66,7 +68,7 @@ def process_parallel(
         return still_pending
 
     with ProcessPoolExecutor(max_workers=nproc) as executor:
-        pending: list = []
+        pending: list[Future[Any]] = []
         for chunk in iter_chunks(
             path,
             num_processors=dproc,
