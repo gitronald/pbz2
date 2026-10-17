@@ -63,3 +63,6 @@ no `[tool.proj-template]` stamp, so it is treated as never stamped.
   - .claude/ is gitignored: CLAUDE.md, settings.json, and the Stop hook were written in the main checkout, on disk only. settings.local.json was not copied: the shared permission baseline lives in the user-level settings, so a per-repo copy would only duplicate it.
   - Stamped [tool.proj-template] version 0.11.2 last.
 - **2026-10-16T20:28:59-07:00** — PR opened: https://github.com/gitronald/pbz2/pull/26
+- **2026-10-16T20:36:27-07:00** — Review gate (medium, /code-review on sonnet finders): no findings; local gate and CI 3.11-3.14 green.
+  - Review follow-up: five low-confidence candidates raised, none actioned. Conscious no-ops: three template-intended config choices (separate local pre-commit blocks, explicit uv python install, pyrefly project-excludes); the coverage floor applying to partial pytest runs, accepted by the template; the dependabot semver-major-days key, which predates this PR.
+  - sdist checked with uv build: only pbz2/, README, CHANGELOG, LICENSE, plus hatchling's forced files.
