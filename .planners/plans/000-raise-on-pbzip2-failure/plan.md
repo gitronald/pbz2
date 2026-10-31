@@ -4,7 +4,7 @@ slug: raise-on-pbzip2-failure
 status: done
 branch: claude/full-max-code-review-lemyrj
 created: 2026-06-10T09:52:14-07:00
-concluded: 2026-06-10T09:48:27-07:00
+concluded: 2026-06-10T09:52:14-07:00
 pr: https://github.com/gitronald/pbz2/pull/13
 ---
 
