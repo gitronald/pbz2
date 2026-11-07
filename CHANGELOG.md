@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Tooling: synced to proj-template 0.11.7. ruff 0.16 -> 0.17 (pre-commit hook
+  and dev pin together), and ruff now formats Python fences in Markdown except
+  plans and this changelog, so the README example is ruff-formatted.
+- CI and publish workflows pin newer patch releases of `setup-uv`,
+  `upload-artifact`, `download-artifact`, and `gh-action-pypi-publish`.
+- Dev dependencies raised to cooldown-cleared releases (pyrefly 1.3.2,
+  pytest 9.1.1). Runtime dependencies are unchanged.
+
 ## [0.2.3] - 2026-10-17
 
 ### Changed
