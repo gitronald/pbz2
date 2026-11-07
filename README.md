@@ -1,4 +1,4 @@
-# pbz2 v0.2.3
+# pbz2 v0.2.4
 
 Stream and parallel-process `.bz2` files via [pbzip2](http://compression.great-site.net/pbzip2/) (parallel bzip2).
 
@@ -85,13 +85,15 @@ for chunk in pbz2.iter_chunks("data.txt.bz2"):
 import json
 import pbz2
 
+
 def parse_chunk(chunk: str) -> list[dict]:
     # split on "\n" only -- str.splitlines() also breaks on U+2028/U+2029 etc.,
     # which can appear raw inside records and would shatter them
     return [json.loads(line) for line in chunk.split("\n") if line]
 
-def save(records: list[dict]) -> None:
-    ...  # write to db, file, etc.
+
+def save(records: list[dict]) -> None: ...  # write to db, file, etc.
+
 
 pbz2.process_parallel(
     "data.json.bz2",
