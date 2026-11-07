@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-11-06
+
 ### Changed
 
 - Tooling: synced to proj-template 0.11.7. ruff 0.16 -> 0.17 (pre-commit hook

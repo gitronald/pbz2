@@ -283,7 +283,7 @@ wheels = [
 
 [[package]]
 name = "pbz2"
-version = "0.2.4a0"
+version = "0.2.4"
 source = { editable = "." }
 dependencies = [
     { name = "orjson" },
