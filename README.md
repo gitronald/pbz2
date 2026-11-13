@@ -1,4 +1,4 @@
-# pbz2 v0.2.5
+# pbz2 v0.2.6a0
 
 Stream and parallel-process `.bz2` files via [pbzip2](http://compression.great-site.net/pbzip2/) (parallel bzip2).
 
