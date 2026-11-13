@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Tooling: synced to repotemplates 0.15.0 (the template formerly named
+  proj-template). The release stamp table in `pyproject.toml` is now
+  `[tool.repotemplates]`, and the Dependabot guide link points at the renamed
+  repository.
+- ruff-pre-commit raised to v0.17.3 with the ruff lock, and the CI and publish
+  workflows pin `setup-uv` v10.3.3.
+- The lock takes `virtualenv` 21.15.6, which `pre-commit` pulls in. Runtime
+  dependencies are unchanged.
+
 ## [0.2.4] - 2026-11-06
 
 ### Changed
